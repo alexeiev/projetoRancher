@@ -1,0 +1,39 @@
+- name: Disable firewall ufw
+  ansible.builtin.systemd:
+    name: ufw
+    enabled: false
+    state: stopped
+  become: true
+
+    # - name: Ensure the system is up to date
+    #   ansible.builtin.apt:
+    #     update_cache: true
+    #     cache_valid_time: 3600
+    #   become: true
+    # - name: install packages
+    #   ansible.builtin.apt:
+    #     name:
+    #       - nfs-common
+    #       - open-iscsi
+    #       - curl
+    #     state: present
+    #   become: true
+- name: Update all packages
+  ansible.builtin.package:
+    name: "*"
+    state: latest
+  become: true
+- name: install packages
+  ansible.builtin.package:
+    name:
+      - nfs-common
+      - open-iscsi
+      - curl
+    state: present
+  become: true
+    # - name: Update all packages
+    #   ansible.builtin.apt:
+    #     state: latest
+    #     autoremove: true
+    #     autoclean: true
+    #   become: true

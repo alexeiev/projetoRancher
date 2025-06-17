@@ -1,0 +1,104 @@
+---
+- name: "[Install Master] - check service status"
+  ansible.builtin.systemd:
+    name: rke2-server
+    state: started
+  register: rke2_service_status
+  ignore_errors: true
+  become: true
+
+- name: "[Install Master] - Install Rancher server"
+  ansible.builtin.shell: >
+    curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=server sh -
+  when: rke2_service_status is failed
+  become: true
+  register: rke2_install
+
+- name: "[Install Master] - Enable and start RKE2 service"
+  ansible.builtin.systemd:
+    name: rke2-server
+    enabled: true
+    state: started
+  become: true
+
+- name: "[Install Master] - Check if kubectl is installed"
+  ansible.builtin.stat:
+    path: /usr/local/bin/kubectl
+  become: true
+  register: kubectl_is_installed
+
+- name: "[Install Master] - Find kubectl binary"
+  ansible.builtin.find: 
+    paths: /var/lib/rancher/rke2/data
+    patterns: kubectl
+    recurse: true
+  register: kubectl_path
+  changed_when: false
+  become: true
+  when: kubectl_is_installed.stat.exists is not true
+
+- name: "[Install Master] - Create Synlink for RKE2"
+  ansible.builtin.file:
+    src: "{{ kubectl_path.files[0].path }}"
+    dest: /usr/local/bin/kubectl
+    force: true
+    state: link
+  become: true
+  when: kubectl_is_installed.stat.exists is not true
+
+- name: "[Install Master] - Create kube directory in user's home"
+  ansible.builtin.file:
+    path: /home/{{ remote_user }}/.kube
+    state: directory
+    owner: "{{ remote_user }}"
+    group: "{{ remote_user }}"
+    mode: '0700'
+  when: rke2_install is changed
+
+- name: "[Install Master] - Copy kubeconfig file to user's home directory"
+  ansible.builtin.copy:
+    src: /etc/rancher/rke2/rke2.yaml
+    dest: /home/{{ remote_user }}/.kube/config
+    owner: "{{ remote_user }}"
+    group: "{{ remote_user }}"
+    mode: '0600'
+    remote_src: true
+  become: true
+  when: rke2_install is changed
+  
+- name: "[Install Master] - Wait for RKE2 to be ready"
+  ansible.builtin.command: >
+    kubectl wait --for=condition=Ready=true node --all --timeout=300s
+  register: rke2_ready
+  retries: 5
+  delay: 60
+  until: rke2_ready is succeeded
+  when: rke2_install is changed
+
+- name: "[Install Master] - Check if RKE2 is installed"
+  ansible.builtin.stat:
+    path: /var/lib/rancher/rke2/server/node-token
+  register: rke2_token_file
+  changed_when: false
+  ignore_errors: true
+
+- name: "[Install Master] - read token from file"
+  ansible.builtin.shell: >
+    cat /var/lib/rancher/rke2/server/node-token
+  register: rancher_token_output
+  become: true
+  changed_when: false
+  when: rke2_install is changed or rke2_token_file.stat.exists is not true
+
+- name: "[Install Master] - Create fake host"
+  add_host:
+    name: RANCHER_MASTER
+    rancher_token: "{{ rancher_token_output.stdout }}"
+  changed_when: false
+  when: rke2_install is changed or rke2_token_file.stat.exists is not true
+
+- name: "[Install Master] - Print Rancher token"
+  ansible.builtin.debug:
+    msg: "Rancher token: {{ hostvars.RANCHER_MASTER.rancher_token }}"
+  changed_when: false
+  when: rke2_install is changed or rke2_token_file.stat.exists is not true

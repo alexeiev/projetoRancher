@@ -1,0 +1,61 @@
+---
+- name: "[Install Agent] - check service status"
+  ansible.builtin.systemd:
+    name: rke2-agent
+    state: started
+  register: rke2_service_status
+  ignore_errors: true
+  become: true
+
+- name: "[Install Agent] - Install Rancher worker"
+  ansible.builtin.shell: >
+    curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=agent sh -
+  become: true
+  when: rke2_service_status is failed
+  register: rke2_install
+
+- name: "[Install Agent] - Set variables for Rancher server"
+  ansible.builtin.set_fact:
+    rancher_token: "{{ hostvars.RANCHER_MASTER.rancher_token }}"
+  changed_when: false
+  when: rke2_install is changed
+
+- name: "[Install Agent] - Print Rancher token"
+  ansible.builtin.debug:
+    msg: "Rancher token: {{ rancher_token }}"
+  changed_when: false
+  when: rke2_install is changed
+
+- name: "[Install Agent] - create RKE2 configuration directory"
+  ansible.builtin.file:
+    path: /etc/rancher/rke2
+    state: directory
+    mode: '0755'
+  register: rke2_config_dir
+  become: true
+  when: rke2_install is changed
+
+- name: "[Install Agent] - Create RKE2 configuration file"
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/rancher/rke2/config.yaml
+    mode: '0644'
+  when: rke2_install is changed
+  become: true
+
+- name: "[Install Agent] - Add on /etc/hosts entry for Rancher server"
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    append_newline: true
+    prepend_newline: true
+    block: |
+      {{ rancher_server_ip }} {{ rancher_url }}
+    state: present
+  become: true
+
+- name: "[Install Agent] - Enable and start RKE2 service"
+  ansible.builtin.systemd:
+    name: rke2-agent
+    enabled: true
+    state: started
+  become: true

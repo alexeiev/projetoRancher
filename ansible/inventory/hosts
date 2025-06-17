@@ -1,0 +1,19 @@
+
+[rancher_master]
+#Grupo de servidores que atuam como master do Rancher
+k8s-lab-01 ansible_host=10.0.0.101
+
+[rancher_worker]
+#grupo de servidores que atuam como worker do Rancher
+k8s-lab-02 ansible_host=10.0.0.102
+k8s-lab-03 ansible_host=10.0.0.103
+k8s-lab-04 ansible_host=10.0.0.104
+
+
+[rancher:children]
+#Grupo que será alvo na execução de playbooks do Rancher
+rancher_master
+rancher_worker
+
+
+

@@ -1,0 +1,3 @@
+conf/.env
+infra/terraform.*
+infra/.terraform*

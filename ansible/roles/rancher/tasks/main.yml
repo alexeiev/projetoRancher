@@ -1,0 +1,25 @@
+---
+# tasks file for roles/rancher
+
+- name: Prepare the system for Rancher installation
+  include_tasks: prepare.yaml
+
+- name: Install Rancher server
+  include_tasks: install-rancher.yaml
+  when: inventory_hostname in groups['rancher_master']
+
+- name: Install Rancher agent
+  include_tasks: install-agent.yaml
+  when: inventory_hostname in groups['rancher_worker']
+
+- name: Install Rancher UI
+  include_tasks: install-ui.yaml
+  when: inventory_hostname in groups['rancher_master']
+
+- name: Install Longhorn
+  include_tasks: install-longhorn.yaml
+  when: inventory_hostname in groups['rancher_master'] and longhorn_install == true
+
+- name: Install Monitoring
+  include_tasks: install-monitoring.yaml
+  when: inventory_hostname in groups['rancher_master'] and monitoring_install == true

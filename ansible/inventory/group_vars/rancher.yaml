@@ -1,0 +1,10 @@
+# Usuário remoto para conexão via SSH
+remote_user: ubuntu
+# Guardando o valor do IP do servidor Rancher
+rancher_server_ip: "{{ hostvars[groups['rancher_master'][0]].ansible_host }}"
+# Indicar a url do Rancher
+rancher_url: "rancher.homelab.local"
+# Indicar a senha do admin do Rancher
+admin_password: "Admin123"
+# Indicar se o Longhorn deve ser instalado
+longhorn_install: true
