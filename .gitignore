@@ -1,3 +1,4 @@
 conf/.env
 infra/terraform.*
 infra/.terraform*
+infra/create_lab.tf

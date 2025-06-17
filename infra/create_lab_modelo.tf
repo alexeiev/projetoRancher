@@ -1,0 +1,32 @@
+module "create_vm" {
+  source = "github.com/alexeiev/proxmox_module?ref=v4.0.0"
+  
+  vm_template       = "ubuntu-2404-v20250616"
+  site              = "promox.home.lab"
+  srv_target_node   = "pve"
+  vm_qnt            = 0
+  vm_name           = "k8s-lab-0"
+  vm_id             = 501
+  vm_memory         = 4096
+  vm_cpu            = 4
+  vm_disk           = 60
+  vm_storage        = "nfs_dellmini2"
+  vm_storage_type   = "qcow2"
+  net               = "vmbr0"
+  net_vlan          = 15
+  vm_ip_address     = [                       
+                      "ip=10.0.0.101/24,gw=10.0.0.1",
+                      "ip=10.0.0.102/24,gw=10.0.0.1", 
+                    ]
+  username-so       = "ubuntu"
+  sshkeys           = "ssh-rsa XXX root@local"
+  environment       = "prod"
+}
+
+output "vm_name" {
+  value = module.create_vm.vm_name
+}
+
+output "ip_address" {
+    value = module.create_vm.ip_address
+}
