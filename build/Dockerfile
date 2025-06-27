@@ -19,8 +19,8 @@ RUN apk add --no-cache \
     make \
     openssh-client \
     py-pip && \
-    addgroup -g 1000 -S deploy && \
-    adduser -h /home/$USER -s /bin/bash -u 1000 -G $USER -S $USER && \
+    addgroup -g 1001 -S deploy && \
+    adduser -h /home/$USER -s /bin/bash -u 1001 -G $USER -S $USER && \
     echo "deploy ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/deploy && \
     chmod 0440 /etc/sudoers.d/$USER
 
