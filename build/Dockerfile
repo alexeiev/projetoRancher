@@ -26,14 +26,15 @@ RUN apk add --no-cache \
 
 RUN git clone https://github.com/alexeiev/projetoRancher.git /home/$USER/ && \
     mkdir -p /home/$USER/.ssh && \
-    chown $USER:$USER -R /home/$USER/.ssh && \
+    mkdir -p /home/$USER/.ansible/collections && \
+    chown $USER:$USER -R /home/$USER/ && \
     chmod 700 -R /home/$USER/.ssh && \
+    chmod 770 -R /home/$USER/.ansible && \
     wget -qO /tmp/terraform.zip https://releases.hashicorp.com/terraform/1.12.2/terraform_1.12.2_linux_amd64.zip && \
     unzip /tmp/terraform.zip terraform -d /usr/local/bin && \
     rm /tmp/terraform.zip && \
     chmod +x /usr/local/bin/terraform && \
-    ansible-galaxy collection install -r /home/$USER/ansible/requirements.yaml    
-
+    ansible-galaxy collection install -r /home/$USER/ansible/requirements.yaml --collections-path /home/$USER/.ansible/collections
     
 WORKDIR /app
     
