@@ -112,24 +112,159 @@ Makefile commands:
 Vale a pena estudar um pouco sobre...
 
 ## Execução
-Para iniciarmos o nosso projeto, faremos um clone deste repositório.
+Para iniciarmos o nosso projeto, deveremos escolher uma das opções.
+**Docker** ou **Linux**
 
-```bash
-git clone  https://github.com/alexeiev/projetoRancher.git
-cd projetoRancher
-```
-* 1 - Editar o arquivo do terraform par aindicar como irá criar suas VMs
-* 2 - Editar o arquivo de configuração ./conf/.env (salvar o template como .env)
-* 3 - Configurar o inventário do ansible (./ansible/inventory/hosts) com o nome das suas VMs e seus IPs
-* 4 - Criar toda a infraestrutura com o seguinte comando:
+Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o modo Docker, pois não precisará instalar as dependências, já entrego uma imágem pronta para utilizar.
 
-```bash
-make infra_create
-```
+<details>
+
+<summary> Docker</summary>
+
+ > [!IMPORTANT]
+ >  Mesmo escolhendo o Docker, ainda precisamos garantir a existência de dois pacotes no seu sistema Linux.
+  ```bash
+    sudo apt update && sudo apt install -y make git
+  ```
+
+* Fazer o clone do projeto
+  ```bash
+  git clone  https://github.com/alexeiev/projetoRancher.git
+  cd projetoRancher
+  ```
+* Criar arquivo de terraform via template e editar para indicar como irá criar suas VMs
+  ```bash
+  cp ./infra/create_lab.tf_modelo ./infra/create_lab.tf
+  ```
+
+* Criar arquivo de env via template e editar com as informações do seu proxmox 
+  ```text
+  cp ./conf/.env_template ./conf/.env
+  ```
+ > [!IMPORTANT]
+ > O valor usado na linha **PM_API_TOKEN_SECRET=** não deve conter aspas ( ' " ). apenas o texto entregue pelo proxmox.
+ > exemplo de valor PM_API_TOKEN_SECRET=aaaa1111-bb22-cc33-dd44-eeeeee555555
+
+* Configurar o inventário do ansible (./ansible/inventory/hosts) com o nome das suas VMs e seus IPs
+  
+  ```text
+  [rancher_master]
+  #Grupo de servidores que atuam como master do Rancher
+  k8s-lab-01 ansible_host=10.0.0.101
+
+  [rancher_worker]
+  #grupo de servidores que atuam como worker do Rancher
+  k8s-lab-02 ansible_host=10.0.0.102
+  k8s-lab-03 ansible_host=10.0.0.103
+  k8s-lab-04 ansible_host=10.0.0.104
+
+
+  [rancher:children]
+  #Grupo que será alvo na execução de playbooks do Rancher
+  rancher_master
+  rancher_worker
+  ```
+* Validar configuração no arquivo ./ansible/inventory/group_vars/rancher.yaml
+  ```text
+  # Usuário remoto para conexão via SSH
+  vm_user: ubuntu
+  # Guardando o valor do IP do servidor Rancher
+  rancher_server_ip: "{{ hostvars[groups['rancher_master'][0]].ansible_host }}"
+  # Indicar a url do Rancher
+  rancher_url: "rancher.homelab.local"
+  # Indicar a senha do admin do Rancher
+  admin_password: "Admin123"
+  # Indicar se o Longhorn deve ser instalado
+  longhorn_install: true
+  # Indicar se o Monitoring deve ser instalado
+  monitoring_install: false
+  ```
+
+
+</details>
+
+
+<details>
+
+<summary> Linux</summary>
+
+* Instalando as dependencias:
+  ```bash
+  # preparando repositórios do terraform
+  sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+  wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | \
+  sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+  sudo apt update
+  sudo apt install -y terraform ansible-core make git
+  ```
+
+* Fazer o clone do projeto
+  ```bash
+  git clone  https://github.com/alexeiev/projetoRancher.git
+  cd projetoRancher
+  ```
+* Criar arquivo de terraform via template e editar para indicar como irá criar suas VMs
+  ```bash
+  cp ./infra/create_lab.tf_modelo ./infra/create_lab.tf
+  ```
+
+* Criar arquivo de env via template e editar com as informações do seu proxmox 
+  ```text
+  cp ./conf/.env_template ./conf/.env
+  ```
+ > [!IMPORTANT]
+ > O valor usado na linha **PM_API_TOKEN_SECRET=** não deve conter aspas ( ' " ). apenas o texto entregue pelo proxmox.
+ > exemplo de valor PM_API_TOKEN_SECRET=aaaa1111-bb22-cc33-dd44-eeeeee555555
+
+* Configurar o inventário do ansible (./ansible/inventory/hosts) com o nome das suas VMs e seus IPs
+  
+  ```text
+  [rancher_master]
+  #Grupo de servidores que atuam como master do Rancher
+  k8s-lab-01 ansible_host=10.0.0.101
+
+  [rancher_worker]
+  #grupo de servidores que atuam como worker do Rancher
+  k8s-lab-02 ansible_host=10.0.0.102
+  k8s-lab-03 ansible_host=10.0.0.103
+  k8s-lab-04 ansible_host=10.0.0.104
+
+
+  [rancher:children]
+  #Grupo que será alvo na execução de playbooks do Rancher
+  rancher_master
+  rancher_worker
+  ```
+* Validar configuração no arquivo ./ansible/inventory/group_vars/rancher.yaml
+  ```text
+  # Usuário remoto para conexão via SSH
+  vm_user: ubuntu
+  # Guardando o valor do IP do servidor Rancher
+  rancher_server_ip: "{{ hostvars[groups['rancher_master'][0]].ansible_host }}"
+  # Indicar a url do Rancher
+  rancher_url: "rancher.homelab.local"
+  # Indicar a senha do admin do Rancher
+  admin_password: "Admin123"
+  # Indicar se o Longhorn deve ser instalado
+  longhorn_install: true
+  # Indicar se o Monitoring deve ser instalado
+  monitoring_install: false
+  ```
+
+* Criar toda a infraestrutura com o seguinte comando:
+  ```bash
+  make infra_create
+  ```
+
+* Para destruir toda a infraestrutura, execute o seguinte comando:
+  ```bash
+  make infra_destroy
+  ```
+</details>
 
 
 
-
-## Autores
+## Autor
 
 - [@alexeiev](https://www.github.com/alexeiev)

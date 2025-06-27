@@ -37,7 +37,9 @@ RUN git clone https://github.com/alexeiev/projetoRancher.git /home/$USER/ && \
     ansible-galaxy collection install -r /home/$USER/ansible/requirements.yaml --collections-path /home/$USER/.ansible/collections
     
 WORKDIR /app
-    
+
+COPY file/Makefile /home/deploy/Makefile
+
 USER $USER
 
 ENTRYPOINT ["/usr/bin/make", "-f", "/home/deploy/Makefile"]
