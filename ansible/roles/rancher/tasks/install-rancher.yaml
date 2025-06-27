@@ -48,19 +48,19 @@
 
 - name: "[Install Master] - Create kube directory in user's home"
   ansible.builtin.file:
-    path: /home/{{ remote_user }}/.kube
+    path: /home/{{ vm_user }}/.kube
     state: directory
-    owner: "{{ remote_user }}"
-    group: "{{ remote_user }}"
+    owner: "{{ vm_user }}"
+    group: "{{ vm_user }}"
     mode: '0700'
   when: rke2_install is changed
 
 - name: "[Install Master] - Copy kubeconfig file to user's home directory"
   ansible.builtin.copy:
     src: /etc/rancher/rke2/rke2.yaml
-    dest: /home/{{ remote_user }}/.kube/config
-    owner: "{{ remote_user }}"
-    group: "{{ remote_user }}"
+    dest: /home/{{ vm_user }}/.kube/config
+    owner: "{{ vm_user }}"
+    group: "{{ vm_user }}"
     mode: '0600'
     remote_src: true
   become: true

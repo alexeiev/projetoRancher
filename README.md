@@ -75,12 +75,12 @@ Tão importante quanto isto, é a preparação de um inventário. Fazendo a sepa
       *Este contem apenas os outros dois grupos como filhos e por isso não precisa ser modificado*
 
 **Hierarquia de diretórios**
-
+```text
 ansible/inventory/
 ├── group_vars
 │   └── rancher.yaml
 └── hosts
-
+```
 ### Conhecendo o rancher.yaml
 Este arquivo é referente ao group_vars do grupo rancher.
 
@@ -120,7 +120,7 @@ cd projetoRancher
 ```
 * 1 - Editar o arquivo do terraform par aindicar como irá criar suas VMs
 * 2 - Editar o arquivo de configuração ./conf/.env (salvar o template como .env)
-* 3 - Configurar o inventário com o nome das suas VMs e seus IPs
+* 3 - Configurar o inventário do ansible (./ansible/inventory/hosts) com o nome das suas VMs e seus IPs
 * 4 - Criar toda a infraestrutura com o seguinte comando:
 
 ```bash

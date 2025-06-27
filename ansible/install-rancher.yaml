@@ -1,7 +1,7 @@
 ---
 - name: Playbook to install Rancher
   hosts: "{{ target_hosts | default('none') }}"
-  remote_user: "{{ remote_user | default('ubuntu') }}"
+  remote_user: "{{ vm_user | default('ubuntu') }}"
 
   roles:
     - role: rancher

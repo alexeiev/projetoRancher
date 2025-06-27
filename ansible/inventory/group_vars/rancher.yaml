@@ -1,5 +1,5 @@
 # Usuário remoto para conexão via SSH
-remote_user: ubuntu
+vm_user: ubuntu
 # Guardando o valor do IP do servidor Rancher
 rancher_server_ip: "{{ hostvars[groups['rancher_master'][0]].ansible_host }}"
 # Indicar a url do Rancher
