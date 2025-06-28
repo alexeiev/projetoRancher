@@ -64,7 +64,7 @@ else ifeq ($(MAKETYPE),docker)
 			@echo -e "\nCreating infrastructure with Docker\n"
 			@sudo chown $(UID):1001 -R $(DIR_TERRAFORM) >/dev/null 2>&1
 			@sudo chmod -R 2775 $(DIR_TERRAFORM) >/dev/null 2>&1
-			@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/.ssh/id_rsa ceievfa/projetorancher:latest infra_create
+			@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/id_rsa ceievfa/projetorancher:latest infra_create
 endif
 
 .PHONY: infra_destroy
