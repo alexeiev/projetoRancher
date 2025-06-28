@@ -1,15 +1,18 @@
 # Laboratório de Rancher
 
 Para facilitar o estudo e conhecer um pouco mais sobre a ferramenta Rancher, criei este projeto onde será possível fazer a instalação da infraestrutura com terraform, aprovisionamento do rancher com ansible-core e para facilitar estas execuções, um bom e velho Makefile.
+Foi utilizado o Proxmox como virtualizador.
+Foi utilizado o Ubuntu 2404 LTS como base nas VMs do rancher.
 
 ## Dependencias
-Para este projeto, utilizaremos 3 software que precisaremos instalar no nosso host.
+Para este projeto, utilizaremos 3 software que precisaremos instalar no nosso host caso prefira usar o Linux diretamente.
 * ansible-core
 * terraform
 * make
 
-**OBS.: Para instalar o Terraform, seguir para a documentação oficial.** [Hashicorp - Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
-
+Caso prefira usar o Docker, terá de instalar as seguintes dependências:
+* docker
+* make
 
 ## Infraestrutura - Terraform.
 
@@ -48,6 +51,55 @@ Para este projeto, utilizaremos 3 software que precisaremos instalar no nosso ho
   sshkeys           = "ssh-rsa root@localhost"          # chave pública para o ssh
   environment       = ""                                # Será criada uma TAG no proxmox. O módulo habilita o statup da VM se for criada com a TAG "prod"
 ```
+
+> [!IMPORTANT] É possível criar as VMs em nodes diferentes?
+> O módulo de terraform que eu escrevi consegue aprovisionar um ou mais hosts por cada Terrafile. Se precisar dividir os nodes, pode-se criar mais de um terrafile dentro do diretório infra. segue o exemplo.
+
+**rancher_pve01.tf**
+```text
+module "rancher_pve01" {                                      # Muito Imporante... O Nome do módulo é único, não poderá existir outro terrafile com este nome de módulo
+  source = "github.com/alexeiev/proxmox_module?ref=v4.0.0"
+  
+  vm_template       = "ubuntu-2404-v20250616"
+  site              = "promox.home.lab"
+  srv_target_node   = "pve01"
+  vm_qnt            = 2
+  vm_name           = "k8s-lab-0"                             # se o valor de vm_qnt > 1 o módulo irá incrementar o ID e o vm_name
+  vm_id             = 501                                     # se o valor de vm_qnt > 1 o módulo irá incrementar o ID e o vm_name
+ ...
+}
+
+output "vm_name" {
+  value = module.rancher_pve01.vm_name                        # Importante colocar o nome do módulo aqui nesta chamada
+}
+
+output "ip_address" {
+    value = module.rancher_pve01.ip_address                   # Importante colocar o nome do módulo aqui nesta chamada
+}
+```
+**rancher_pve02.tf**
+```text
+module "rancher_pve02" {                                      # Muito Imporante... O Nome do módulo é único, não poderá existir outro terrafile com este nome de módulo
+  source = "github.com/alexeiev/proxmox_module?ref=v4.0.0"
+  
+  vm_template       = "ubuntu-2404-v20250616"
+  site              = "promox.home.lab"
+  srv_target_node   = "pve02"
+  vm_qnt            = 2
+  vm_name           = "k8s-lab-03"                             # se o valor de vm_qnt > 1 o módulo irá incrementar o ID e o vm_name
+  vm_id             = 503                                     # se o valor de vm_qnt > 1 o módulo irá incrementar o ID e o vm_name
+ ...
+}
+
+output "vm_name" {
+  value = module.rancher_pve02.vm_name                        # Importante colocar o nome do módulo aqui nesta chamada
+}
+
+output "ip_address" {
+    value = module.rancher_pve02.ip_address                   # Importante colocar o nome do módulo aqui nesta chamada
+}
+```
+
 
 ### Conhecendo o arquivo conf/.env
 * Temos um arquivo de template que deverá ser salvo com o nome .env com as informações que mostraremos agora
@@ -198,9 +250,21 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   # Indicar se o Longhorn deve ser instalado
   longhorn_install: true
   # Indicar se o Monitoring deve ser instalado
-  monitoring_install: false
+  monitoring_install: true
+  ```
+> [!IMPORTANT]
+> A configuração de URL e senha do usuário admin estará neste arquivo.
+
+
+* Criar toda a infraestrutura com o seguinte comando:
+  ```bash
+  make infra_create
   ```
 
+* Para destruir toda a infraestrutura, execute o seguinte comando:
+  ```bash
+  make infra_destroy
+  ```
 
 </details>
 
@@ -238,6 +302,10 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
  > O valor usado na linha **PM_API_TOKEN_SECRET=** não deve conter aspas ( ' " ). apenas o texto entregue pelo proxmox.
  > exemplo de valor PM_API_TOKEN_SECRET=aaaa1111-bb22-cc33-dd44-eeeeee555555
 
+ > [!IMPORTANT]
+ > Como estamos usando a instalação via Linux, precisamos indicar no arquivo 
+ > .env que a variável MAKETYPE é linux
+
 * Configurar o inventário do ansible (./ansible/inventory/hosts) com o nome das suas VMs e seus IPs
   
   ```text
@@ -270,8 +338,11 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   # Indicar se o Longhorn deve ser instalado
   longhorn_install: true
   # Indicar se o Monitoring deve ser instalado
-  monitoring_install: false
+  monitoring_install: true
   ```
+ > [!IMPORTANT]
+ > A configuração de URL e senha do usuário admin estará neste arquivo.
+
 
 * Criar toda a infraestrutura com o seguinte comando:
   ```bash
