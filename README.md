@@ -54,6 +54,8 @@ Para este projeto, utilizaremos 3 software que precisaremos instalar no nosso ho
 ```text
 export PM_API_TOKEN_ID=         # API Token gerado no proxmox
 export PM_API_TOKEN_SECRET=     # API Secret gerado no proxmox
+MAKETYPE=docker                 # Escolha em que modo vai usar a instalação
+# MAKETYPE=linux
 ```
 
 ***Mais informações, verificar na documentação oficial.* [Proxmox](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pveum_tokens)
@@ -115,7 +117,7 @@ Vale a pena estudar um pouco sobre...
 Para iniciarmos o nosso projeto, deveremos escolher uma das opções.
 **Docker** ou **Linux**
 
-Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o modo Docker, pois não precisará instalar as dependências, já entrego uma imágem pronta para utilizar.
+Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o modo Docker, pois não precisará instalar as dependências, já entrego uma imagem pronta para utilizar.
 
 <details>
 
@@ -161,7 +163,8 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   ```
  > [!IMPORTANT]
  > O valor usado na linha **PM_API_TOKEN_SECRET=** não deve conter aspas ( ' " ). apenas o texto entregue pelo proxmox.
- > exemplo de valor PM_API_TOKEN_SECRET=aaaa1111-bb22-cc33-dd44-eeeeee555555
+ > exemplo de valor PM_API_TOKEN_SECRET=aaaa1111-bb22-cc33-dd44-
+ > Para o MAKETYPE também não deve usar as aspas ( ' " ).
 
 * Configurar o inventário do ansible (./ansible/inventory/hosts) com o nome das suas VMs e seus IPs
   

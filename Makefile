@@ -5,7 +5,8 @@ DIR_TERRAFORM	:= ./infra
 DIR_ANSIBLE		:=./ansible
 HOMEDIR				:= $(HOME)
 LOCALDIR			:= $(PWD)
- 
+UID						:= $(id -u)
+GID						:= $(id -g)
 
 .PHONY: help
 help: 
@@ -61,6 +62,8 @@ ifeq ($(MAKETYPE),linux)
 			@cd $(DIR_ANSIBLE) && ansible-playbook -i inventory/hosts install-rancher.yaml -e "target_hosts=rancher" ; cd - >/dev/null 2>&1
 else ifeq ($(MAKETYPE),docker)
 			@echo -e "\nCreating infrastructure with Docker\n"
+			@sudo chown $(UID):1001 -R $(DIR_TERRAFORM) >/dev/null 2>&1
+			@sudo chmod -R 2775 $(DIR_TERRAFORM) >/dev/null 2>&1
 			@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/.ssh/id_rsa ceievfa/projetorancher:latest infra_create
 endif
 

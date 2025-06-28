@@ -38,10 +38,11 @@ RUN git clone https://github.com/alexeiev/projetoRancher.git /home/$USER/ && \
     
 WORKDIR /app
 
-COPY file/Makefile /home/deploy/Makefile
+COPY files/Makefile /home/deploy/Makefile
+COPY files/entrypoint.sh /
+
+RUN chmod +x /entrypoint.sh 
 
 USER $USER
 
-ENTRYPOINT ["/usr/bin/make", "-f", "/home/deploy/Makefile"]
-
-CMD ["help"]
+ENTRYPOINT ["/entrypoint.sh"]
