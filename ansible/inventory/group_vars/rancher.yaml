@@ -10,3 +10,9 @@ admin_password: "Admin123"
 longhorn_install: true
 # Indicar se o Monitoring deve ser instalado
 monitoring_install: true
+monitoring:
+  version: "106.1.2"
+  namespace: "cattle-monitoring-system"
+  storageClass: "longhorn"
+  grafana:
+    admin_password: "Admin123"

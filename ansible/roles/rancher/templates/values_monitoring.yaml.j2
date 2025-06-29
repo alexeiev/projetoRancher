@@ -1,0 +1,44 @@
+global:
+  cattle:
+    systemDefaultRegistry: ""
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    replicas: 1
+    retention: "15d"
+    enableAdminAPI: true
+    serviceMonitorSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "{{ monitoring.storageClass }}"
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+
+grafana:
+  enabled: true
+  persistence:
+    enabled: true
+    storageClassName: "{{ monitoring.storageClass }}"
+    size: 10Gi
+  adminPassword: "{{ monitoring.grafana.admin_password }}"
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    replicas: 1
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "{{ monitoring.storageClass }}"
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 2Gi
+
+# Ativar a coleta de ServiceMonitors definidos via CRD no cluster
+additionalServiceMonitors: []
+additionalPodMonitors: []
