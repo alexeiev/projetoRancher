@@ -1,4 +1,4 @@
-module "create_vm" {
+module "rancher" {
   source = "github.com/alexeiev/proxmox_module?ref=v4.0.0"
   
   vm_template       = "ubuntu-2404-v20250616"
@@ -23,10 +23,10 @@ module "create_vm" {
   environment       = "prod"
 }
 
-output "vm_name" {
-  value = module.create_vm.vm_name
+output "vm_name-rancher" {
+  value = module.rancher.vm_name
 }
 
-output "ip_address" {
-    value = module.create_vm.ip_address
+output "ip_address-rancher" {
+    value = module.rancher.ip_address
 }
