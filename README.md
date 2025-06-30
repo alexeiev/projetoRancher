@@ -69,7 +69,7 @@ module "rancher_pve01" {                                      # Muito Imporante.
  ...
 }
 
-output "vm_name" {
+output "vm_name-rancher_pve01" {
   value = module.rancher_pve01.vm_name                        # Importante colocar o nome do módulo aqui nesta chamada
 }
 
@@ -91,11 +91,11 @@ module "rancher_pve02" {                                      # Muito Imporante.
  ...
 }
 
-output "vm_name" {
+output "vm_name-rancher_pve02" {
   value = module.rancher_pve02.vm_name                        # Importante colocar o nome do módulo aqui nesta chamada
 }
 
-output "ip_address" {
+output "ip_address-rancher_pve02" {
     value = module.rancher_pve02.ip_address                   # Importante colocar o nome do módulo aqui nesta chamada
 }
 ```
