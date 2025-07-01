@@ -36,4 +36,4 @@
     create_namespace: true
     chart_version: "{{ monitoring.version }}"
     wait: true
-    values: "{{ lookup('template', 'values-monitoring.yaml.j2') | from_yaml }}"
+    values: "{{ lookup('template', 'values_monitoring.yaml.j2') | from_yaml }}"
