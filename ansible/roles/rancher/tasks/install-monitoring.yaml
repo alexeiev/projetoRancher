@@ -1,6 +1,6 @@
 ---
 - name: "[Install Monitoring] - Check if HELM is installed"
-  ansible.builtin.shel: >
+  ansible.builtin.shell: >
     helm version 
   register: helm_version_check
   changed_when: false
@@ -22,7 +22,7 @@
 
 - name: "[Install Monitoring] - Install CRD for Rancher Monitoring"
   kubernetes.core.helm:
-    name: rancher-monitoring-crds
+    name: rancher-monitoring-crd
     chart_ref: rancher-charts/rancher-monitoring-crd
     namespace: "{{ monitoring.namespace }}"
     create_namespace: true
