@@ -42,7 +42,7 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: "{{ monitoring.storageClass }}"
+          storageClassName: "{{ monitoring.storageClass | default('longhorn') }}"
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
@@ -65,7 +65,7 @@ grafana:
     - ReadWriteOnce
     enabled: true
     size: {{ monitoring.grafana.size | default("10Gi") }}
-    storageClassName: "{{ monitoring.storageClass }}"
+    storageClassName: "{{ monitoring.storageClass | default('longhorn') }}"
     subPath: null
     type: statefulset
 
@@ -84,13 +84,13 @@ alertmanager:
     storage:
       volumeClaimTemplate:
         spec:
-          storageClassName: "{{ monitoring.storageClass }}"
+          storageClassName: "{{ monitoring.storageClass | default('longhorn') }}"
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
               storage: {{ monitoring.alertmanager.size | default("2Gi") }}
 
-# Configurações do Kube-State-Metrics (sub-chart)
+# Configurações do Kube-State-Metrics
 kube-state-metrics:
   enabled: true
   resources:
@@ -101,7 +101,7 @@ kube-state-metrics:
       cpu: 50m
       memory: 100Mi
 
-# Configurações do Prometheus Node Exporter (sub-chart)
+# Configurações do Prometheus Node Exporter
 prometheus-node-exporter:
   enabled: true
   resources:
@@ -112,13 +112,13 @@ prometheus-node-exporter:
       cpu: 50m
       memory: 60Mi
 
-# Configurações do Prometheus Adapter (sub-chart)
+# Configurações do Prometheus Adapter
 prometheus-adapter:
   enabled: true
   resources:
     requests:
-      cpu: 10m
-      memory: 30Mi
+      cpu: 5m
+      memory: 300Mi
     limits:
-      cpu: 50m
-      memory: 60Mi
+      cpu: 15m
+      memory: 500Mi
