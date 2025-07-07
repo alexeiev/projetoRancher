@@ -80,6 +80,7 @@
     path: /var/lib/rancher/rke2/server/node-token
   register: rke2_token_file
   changed_when: false
+  failed_when: false
   ignore_errors: true
 
 - name: "[Install Master] - read token from file"

@@ -16,3 +16,9 @@ monitoring:
   storageClass: "longhorn"
   grafana:
     admin_password: "Admin123"
+    size: "10Gi"
+  prometheus:
+    retention: "15d"
+    size: "20Gi"
+  alertmanager:
+    size: "2Gi"

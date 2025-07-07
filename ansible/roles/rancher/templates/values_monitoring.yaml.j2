@@ -1,6 +1,28 @@
 global:
   cattle:
+    clusterId: "local"
+    clusterName: local
+    rkePathPrefix: ""
+    rkeWindowsPathPrefix: ""
     systemDefaultRegistry: ""
+    systemProjectId: p-rbffz
+    url: "https://{{ rancher_url }}"
+  systemDefaultRegistry: ""
+
+extraEnv:
+  - name: "CATTLE_PROMETHEUS_METRICS"
+    value: "true"
+
+rke2ControllerManager:
+  enabled: true
+rke2Etcd:
+  enabled: true
+rke2IngressNginx:
+  enabled: true
+rke2Proxy:
+  enabled: true
+rke2Scheduler:
+  enabled: true
 
 prometheus:
   enabled: true
@@ -8,7 +30,15 @@ prometheus:
     replicas: 1
     retention: "15d"
     enableAdminAPI: true
-    serviceMonitorSelectorNilUsesHelmValues: false
+    externalLabels:
+      cluster: "local"
+    resources:
+      requests:
+        cpu: 200m
+        memory: 750Mi
+      limits:
+        cpu: 500m
+        memory: 1500Mi
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -16,20 +46,41 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 20Gi
+              storage: {{ monitoring.prometheus.size | default("20Gi") }}
 
 grafana:
   enabled: true
-  persistence:
-    enabled: true
-    storageClassName: "{{ monitoring.storageClass }}"
-    size: 10Gi
   adminPassword: "{{ monitoring.grafana.admin_password }}"
+  ingress:
+    enabled: false
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: "cattle-dashboards"
+    datasources:
+      enabled: true
+      label: "grafana_datasource"
+  persistence:
+    accessModes:
+    - ReadWriteOnce
+    enabled: true
+    size: {{ monitoring.grafana.size | default("10Gi") }}
+    storageClassName: "{{ monitoring.storageClass }}"
+    subPath: null
+    type: statefulset
 
 alertmanager:
   enabled: true
   alertmanagerSpec:
+    configSecret: ""
     replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 20Mi
+      limits:
+        cpu: 50m
+        memory: 50Mi
     storage:
       volumeClaimTemplate:
         spec:
@@ -37,8 +88,37 @@ alertmanager:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 2Gi
+              storage: {{ monitoring.alertmanager.size | default("2Gi") }}
 
-# Ativar a coleta de ServiceMonitors definidos via CRD no cluster
-additionalServiceMonitors: []
-additionalPodMonitors: []
+# Configurações do Kube-State-Metrics (sub-chart)
+kube-state-metrics:
+  enabled: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 50Mi
+    limits:
+      cpu: 50m
+      memory: 100Mi
+
+# Configurações do Prometheus Node Exporter (sub-chart)
+prometheus-node-exporter:
+  enabled: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 30Mi
+    limits:
+      cpu: 50m
+      memory: 60Mi
+
+# Configurações do Prometheus Adapter (sub-chart)
+prometheus-adapter:
+  enabled: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 30Mi
+    limits:
+      cpu: 50m
+      memory: 60Mi
