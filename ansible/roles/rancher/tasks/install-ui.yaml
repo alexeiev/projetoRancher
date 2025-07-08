@@ -1,16 +1,17 @@
 ---
 - name: "[Install UI] - Check if HELM is installed"
-  ansible.builtin.command: >
+  ansible.builtin.shell: >
     helm version 
-  register: helm_version_check
   changed_when: false
+  failed_when: false
   ignore_errors: true
+  register: helm_version_check
 
 - name: "[Install UI] - install HELM"
   ansible.builtin.shell: >
     curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
   become: true
-  when: helm_version_check is failed
+  when: helm_version_check.rc != 0
   
 - name: "[Install UI] - Add/Update Rancher repository to Helm"
   kubernetes.core.helm_repository:
@@ -54,7 +55,6 @@
       hostname: "{{ rancher_url }}"
       replicas: 1
       bootstrapPassword: "{{ admin_password }}"
-      # global.cattle.psp.enabled: false
   register: rancher_ui_install
 
 - name: "[Install UI] - Wait for Rancher UI to be ready"

@@ -2,16 +2,23 @@
 - name: "[Install Monitoring] - Check if HELM is installed"
   ansible.builtin.shell: >
     helm version 
-  register: helm_version_check
   changed_when: false
   failed_when: false
   ignore_errors: true
+  register: helm_version_check
 
 - name: "[Install Monitoring] - install HELM"
   ansible.builtin.shell: >
     curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
   become: true
   when: helm_version_check.rc != 0
+
+- name: "[Install Monitoring] - Create namespace cattle-fleet-system"
+  ansible.builtin.shell: >
+    kubectl create ns cattle-fleet-system
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
 
 - name: "[Install Monitoring] - Add Rancher Monitoring Helm repository and Update"
   kubernetes.core.helm_repository:

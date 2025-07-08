@@ -1,9 +1,9 @@
 ---
 - name: "[Install Agent] - check service status"
-  ansible.builtin.systemd:
-    name: rke2-agent
-    state: started
+  ansible.builtin.shell: systemctl status rke2-agent
   register: rke2_service_status
+  changed_when: false
+  failed_when: false
   ignore_errors: true
   become: true
 
@@ -11,7 +11,7 @@
   ansible.builtin.shell: >
     curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=agent sh -
   become: true
-  when: rke2_service_status is failed
+  when: rke2_service_status.rc != 0
   register: rke2_install
 
 - name: "[Install Agent] - Set variables for Rancher server"

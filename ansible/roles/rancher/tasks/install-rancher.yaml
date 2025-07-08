@@ -6,6 +6,7 @@
   register: rke2_service_status
   ignore_errors: true
   become: true
+  #TODO: Add changed_when: false 
 
 - name: "[Install Master] - Install Rancher server"
   ansible.builtin.shell: >
