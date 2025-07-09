@@ -28,7 +28,7 @@ Caso prefira usar o Docker, terá de instalar as seguintes dependências:
 ### Conhecendo o arquivo do terraform. ./infra/create_lab.tf
 
 ```text
-  vm_template       = "ubuntu-2404-v20250616"           # Informar o nome do template ubuntu para o uso
+  vm_template       = "tlp-ubuntu"           # Informar o nome do template ubuntu para o uso
   site              = "proxmox.home.lab"                # FQDN ou ip do site
   srv_target_node   = "pv01"                            # Nó onde irá correr suas VMs
   vm_qnt            = 4                                 # Quantidade de VMs que o terraform irá aprovisionar
@@ -37,7 +37,7 @@ Caso prefira usar o Docker, terá de instalar as seguintes dependências:
   vm_memory         = 4096                              # Memória em MB
   vm_cpu            = 4                                 # CPU
   vm_disk           = 60                                # Disco em GB
-  vm_storage        = "nfs_dellmini2"                   # Indicar nome do seu storage. (local-lvm, nfs,...)
+  vm_storage        = "nfs"                   # Indicar nome do seu storage. (local-lvm, nfs,...)
   vm_storage_type   = "qcow2"                           # Formato do HD. (qcow2, raw,...)
   net               = "vmbr0"                           # Interface de rede a ser utilizada
   net_vlan          = 15                                # Se usar VLAN, pode indicar aqui. Caso Contrário podes comentar a linha ou o valor 0
@@ -60,7 +60,7 @@ Caso prefira usar o Docker, terá de instalar as seguintes dependências:
 module "rancher_pve01" {                                      # Muito Imporante... O Nome do módulo é único, não poderá existir outro terrafile com este nome de módulo
   source = "github.com/alexeiev/proxmox_module?ref=v4.0.0"
   
-  vm_template       = "ubuntu-2404-v20250616"
+  vm_template       = "tlp-ubuntu"
   site              = "promox.home.lab"
   srv_target_node   = "pve01"
   vm_qnt            = 2
@@ -82,7 +82,7 @@ output "ip_address" {
 module "rancher_pve02" {                                      # Muito Imporante... O Nome do módulo é único, não poderá existir outro terrafile com este nome de módulo
   source = "github.com/alexeiev/proxmox_module?ref=v4.0.0"
   
-  vm_template       = "ubuntu-2404-v20250616"
+  vm_template       = "tlp-ubuntu"
   site              = "promox.home.lab"
   srv_target_node   = "pve02"
   vm_qnt            = 2
@@ -139,11 +139,31 @@ ansible/inventory/
 Este arquivo é referente ao group_vars do grupo rancher.
 
 ```text
-remote_user: ubuntu                                                             # Usuário remoto para conexão via SSH
-rancher_server_ip: "{{ hostvars[groups['rancher_master'][0]].ansible_host }}"   # Guardando o valor do IP do servidor Rancher **Não modificar**
-rancher_url: "rancher.homelab.local"                                            # Indicar a url do Rancher
-admin_password: "Admin123"                                                      # Indicar a senha Inicial do admin do Rancher. **Modificar na primeira utilizacão!**
-longhorn_install: true                                                          # Indicar se o Longhorn deve ser instalado
+# Usuário remoto para conexão via SSH
+vm_user: ubuntu
+# Guardando o valor do IP do servidor Rancher
+rancher_server_ip: "{{ hostvars[groups['rancher_master'][0]].ansible_host }}"
+# Indicar a url do Rancher
+rancher_url: "rancher.homelab.local"
+# Indicar a senha do admin do Rancher
+admin_password: "Admin123"
+# Indicar se o Longhorn deve ser instalado
+longhorn_install: true
+# Indicar se o Monitoring deve ser instalado
+monitoring_install: true
+monitoring:
+  # Versão do monitoring-stack
+  version: "106.1.2"
+  namespace: "cattle-monitoring-system"
+  storageClass: "longhorn"
+  grafana:
+    admin_password: "Admin123"
+    size: "10Gi"
+  prometheus:
+    retention: "15d"
+    size: "20Gi"
+  alertmanager:
+    size: "2Gi"
 ```
 
 ## Conhecendo o nosso Makefile
@@ -223,13 +243,13 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   ```text
   [rancher_master]
   #Grupo de servidores que atuam como master do Rancher
-  k8s-lab-01 ansible_host=10.0.0.101
+  k8s-master-01 ansible_host=10.0.0.101
 
   [rancher_worker]
   #grupo de servidores que atuam como worker do Rancher
-  k8s-lab-02 ansible_host=10.0.0.102
-  k8s-lab-03 ansible_host=10.0.0.103
-  k8s-lab-04 ansible_host=10.0.0.104
+  k8s-worker-01 ansible_host=10.0.0.102
+  k8s-worker-02 ansible_host=10.0.0.103
+  k8s-worker-03 ansible_host=10.0.0.104
 
 
   [rancher:children]
@@ -251,6 +271,19 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   longhorn_install: true
   # Indicar se o Monitoring deve ser instalado
   monitoring_install: true
+  monitoring:
+    # Versão do monitoring-stack
+    version: "106.1.2"
+    namespace: "cattle-monitoring-system"
+    storageClass: "longhorn"
+    grafana:
+      admin_password: "Admin123"
+      size: "10Gi"
+    prometheus:
+      retention: "15d"
+      size: "20Gi"
+    alertmanager:
+      size: "2Gi"
   ```
 > [!IMPORTANT]
 > A configuração de URL e senha do usuário admin estará neste arquivo.
@@ -311,13 +344,13 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   ```text
   [rancher_master]
   #Grupo de servidores que atuam como master do Rancher
-  k8s-lab-01 ansible_host=10.0.0.101
+  k8s-master-01 ansible_host=10.0.0.101
 
   [rancher_worker]
   #grupo de servidores que atuam como worker do Rancher
-  k8s-lab-02 ansible_host=10.0.0.102
-  k8s-lab-03 ansible_host=10.0.0.103
-  k8s-lab-04 ansible_host=10.0.0.104
+  k8s-worker-02 ansible_host=10.0.0.102
+  k8s-worker-03 ansible_host=10.0.0.103
+  k8s-worker-04 ansible_host=10.0.0.104
 
 
   [rancher:children]
@@ -339,6 +372,19 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   longhorn_install: true
   # Indicar se o Monitoring deve ser instalado
   monitoring_install: true
+  monitoring:
+    # Versão do monitoring-stack
+    version: "106.1.2"
+    namespace: "cattle-monitoring-system"
+    storageClass: "longhorn"
+    grafana:
+      admin_password: "Admin123"
+      size: "10Gi"
+    prometheus:
+      retention: "15d"
+      size: "20Gi"
+    alertmanager:
+      size: "2Gi"
   ```
  > [!IMPORTANT]
  > A configuração de URL e senha do usuário admin estará neste arquivo.
