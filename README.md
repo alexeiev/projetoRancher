@@ -218,6 +218,12 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   sudo usermod -aG docker $USER
   ```
+ > [!IMPORTANT]
+ > **Se fez a instalação do Docker agora, é necessário fazer um reboot para o usuário local conseguir rodar containers**
+
+ ```bash
+ sudo reboot
+ ```
 
 * Fazer o clone do projeto
   ```bash
