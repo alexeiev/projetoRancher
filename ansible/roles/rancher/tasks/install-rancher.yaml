@@ -1,19 +1,18 @@
 ---
 - name: "[Install Master] - check service status"
-  ansible.builtin.systemd:
-    name: rke2-server
-    state: started
-  register: rke2_service_status
+  ansible.builtin.shell: systemctl status rke2-server
   ignore_errors: true
+  changed_when: false
+  failed_when: false
+  register: rke2_service_status
   become: true
-  #TODO: Add changed_when: false 
 
 - name: "[Install Master] - Install Rancher server"
   ansible.builtin.shell: >
     curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=server sh -
-  when: rke2_service_status is failed
-  become: true
+  when: rke2_service_status.rc != 0
   register: rke2_install
+  become: true
 
 - name: "[Install Master] - Enable and start RKE2 service"
   ansible.builtin.systemd:
