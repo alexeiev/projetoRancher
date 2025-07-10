@@ -5,3 +5,9 @@
 
   roles:
     - role: rancher
+
+  tasks:
+    - name: "Print URL Rancher UI"
+      ansible.builtin.debug:
+        msg: "For access, use the URL: https://{{ rancher_url }}"
+      when: inventory_hostname in groups['rancher_master']
