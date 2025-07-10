@@ -2,6 +2,7 @@
 SHELL 				:= /bin/bash
 DIR_TERRAFORM := ./infra
 DIR_ANSIBLE		:=./ansible
+DIR_BIN				:=./bin
 include ./conf/.env
 
 
@@ -36,6 +37,10 @@ k8s_install:
 			@echo -e "This will install Rancher on the target hosts defined in the Ansible inventory file\n"
 			@cd $(DIR_ANSIBLE) && ansible-playbook -i inventory/hosts install-rancher.yaml -e "target_hosts=rancher" ; cd - >/dev/null 2>&1
 
+.PHONY: wait_hosts
+wait_hosts:
+			@python3 $(DIR_BIN)/wait_hosts.py 
+
 .PHONY: clean
 clean:
 			@echo -e "\nCleaning up the environment\n"
@@ -44,7 +49,7 @@ clean:
 			rm -f $(DIR_TERRAFORM)/.terraform.lock* >/dev/null 2>&1
 
 .PHONY: infra_create
-infra_create: infra_terraform k8s_install
+infra_create: infra_terraform wait_hosts k8s_install
 
 .PHONY: infra_destroy
 infra_destroy: infra_terraform_destroy clean

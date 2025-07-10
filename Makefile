@@ -4,6 +4,7 @@ TAG 						:= latest
 SHELL						:= /bin/bash
 DIR_TERRAFORM		:= ./infra
 DIR_ANSIBLE			:=./ansible
+DIR_BIN					:=./bin
 HOMEDIR					:= $(HOME)
 LOCALDIR				:= $(PWD)
 UID							:= $(id -u)
@@ -58,6 +59,9 @@ infra_create:
 ifeq ($(MAKETYPE),linux)
 			@echo -e "\nCreating infrastructure with Terraform\n"
 			@cd $(DIR_TERRAFORM) && terraform init && terraform validate && terraform apply -auto-approve
+
+			#Aguardar hosts estarem disponiveis
+			@python3 $(DIR_BIN)/wait_hosts.py 
 
 			@echo -e "\nInstalling Kubernetes/Rahcner with Ansible\n"
 			@echo -e "This will install Rancher on the target hosts defined in the Ansible inventory file\n"
