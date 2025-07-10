@@ -299,6 +299,9 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   ```bash
   make infra_create
   ```
+  > [!IMPORTANT]
+  > Caso seja apresentado alguma falaha na criação da infraestrutura, poderá voltar a executar o comando, pois tanto o Ansible quanto o Terraform são idempotentes.
+  > Com isto, teremos o mesmo resultado sempre que executar os mesmos comandos.
 
 * Para destruir toda a infraestrutura, execute o seguinte comando:
   ```bash
@@ -400,6 +403,9 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   ```bash
   make infra_create
   ```
+  > [!IMPORTANT]
+  > Caso seja apresentado alguma falaha na criação da infraestrutura, poderá voltar a executar o comando, pois tanto o Ansible quanto o Terraform são idempotentes.
+  > Com isto, teremos o mesmo resultado sempre que executar os mesmos comandos.
 
 * Para destruir toda a infraestrutura, execute o seguinte comando:
   ```bash
