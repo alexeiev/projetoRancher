@@ -42,6 +42,7 @@ WORKDIR /app
 
 COPY files/Makefile /home/deploy/Makefile
 COPY files/entrypoint.sh /
+COPY ../ansible/ansible.cfg /etc/ansible/ansible.cfg
 
 RUN chmod +x /entrypoint.sh 
 
