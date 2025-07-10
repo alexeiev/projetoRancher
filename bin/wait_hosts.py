@@ -22,7 +22,7 @@ messages = [
 def check_ansible_connectivity():
     try:
         result = subprocess.run(
-            ["ansible", "-i", inventory_file, "all", "-u", "{{ vm_user }}" "-m", "ping"],
+            ["ansible", "-i", inventory_file, "all", "-u", "{{ vm_user }}", "-m", "ping"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True
