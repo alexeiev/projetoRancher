@@ -6,6 +6,9 @@ ENV USER=deploy
 
 # Set the maintainer label
 LABEL maintainer="Alexeiev Araujo"
+LABEL EMAIL="ceievfa@gmail.com"
+LABEL description="Docker image for projetoRancher with Terraform and Ansible"
+
 
 RUN apk add --no-cache \
     bash \
