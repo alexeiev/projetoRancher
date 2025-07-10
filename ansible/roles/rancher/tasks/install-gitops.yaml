@@ -1,14 +1,31 @@
 ---
+- name: "[Install Monitoring] - Check if argocd is installed"
+  ansible.builtin.shell: >
+    argocd help
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
+  register: argocd_cli_install
+  when: inventory_hostname in groups['rancher_master']
+
+- name: "[Install GitOps] - Install ArgoCD CLI"
+  ansible.builtin.shell: >
+    curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && \
+    sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd && \
+    rm argocd-linux-amd64
+  become: true
+  when: inventory_hostname in groups['rancher_master'] and argocd_cli_install.rc != 0
+
 - name: "[Install GitOps] - Create namespace for ArgoCD"
-  kubernetes.core.k8s:
-    name: argocd
-    state: present
-    namespace: argocd
+  ansible.builtin.shell: >
+     kubectl create namespace argocd
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
 
 - name: "[Install GitOps] - Install ArgoCD"
   ansible.builtin.shell: >
     kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-  become: true
   changed_when: "'created' in argocd_install.stdout or 'configured' in argocd_install.stdout"
   when: inventory_hostname in groups['rancher_master']
   register: argocd_install
@@ -25,16 +42,30 @@
   retries: 10
   delay: 10
 
+- name: "[Install GitOps] - Check if Ingress role is installed"
+  ansible.builtin.shell: >
+    kubectl get ingress -n argocd argocd-server-ingress
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
+  register: argocd_ingress_check
+
+- name: "[Install GitOps] - Copy ArgoCD Ingress template"
+  ansible.builtin.template:
+    src: argocd_ingress.yaml.j2
+    dest: /tmp/argocd_ingress.yaml
+    mode: '0644'
+  when: inventory_hostname in groups['rancher_master'] and argocd_ingress_check.rc != 0
+
 - name: "[Install GitOps] - Create Ingress for ArgoCD"
-  kubernetes.core.k8s:
-    src: "{{ playbook_dir }}/templates/argocd_ingress.yaml.j2"
-    state: present
+  ansible.builtin.shell: >
+    kubectl apply -f /tmp/argocd_ingress.yaml
   register: argocd_ingress
-  when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
+  when: inventory_hostname in groups['rancher_master'] and argocd_ingress_check.rc != 0
 
 - name: "[Install GitOps] - Set ArgoCD URL"
   ansible.builtin.set_fact:
-    argocd_url: "{{ gitops.url if gitops.url else 'argocd.' + rancher_url }}"
+    argocd_url: "{{ (gitops.url | default('')) | default('argocd.' + rancher_url, true) }}"
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
 
 - name: "[Install GitOps] - Get ArgoCD admin password"
@@ -51,5 +82,5 @@
 
 - name: "[Install GitOps] - Print ArgoCD access information"
   ansible.builtin.debug:
-    msg: "ArgoCD is installed at {{ argocd_url }} with admin password: {{ argocd_admin_password }}"
+    msg: "ArgoCD is installed at https://{{ argocd_url }} with admin password: {{ argocd_admin_password }}"
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
