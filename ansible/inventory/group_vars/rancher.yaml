@@ -11,7 +11,7 @@ longhorn_install: true
 # Indicar se o Monitoring deve ser instalado
 monitoring_install: true
 monitoring:
-  version: "106.1.2"
+  version: "106.1.2+up69.8.2-rancher.7"
   namespace: "cattle-monitoring-system"
   storageClass: "longhorn"
   grafana:
