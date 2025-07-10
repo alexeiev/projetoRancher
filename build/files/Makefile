@@ -39,7 +39,7 @@ k8s_install:
 
 .PHONY: wait_hosts
 wait_hosts:
-			@python3 $(DIR_BIN)/wait_hosts.py 
+			@python3 -u $(DIR_BIN)/wait_hosts.py 
 
 .PHONY: clean
 clean:

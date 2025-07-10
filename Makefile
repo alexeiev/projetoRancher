@@ -61,7 +61,7 @@ ifeq ($(MAKETYPE),linux)
 			@cd $(DIR_TERRAFORM) && terraform init && terraform validate && terraform apply -auto-approve
 
 			#Aguardar hosts estarem disponiveis
-			@python3 $(DIR_BIN)/wait_hosts.py 
+			@python3 -u $(DIR_BIN)/wait_hosts.py 
 
 			@echo -e "\nInstalling Kubernetes/Rahcner with Ansible\n"
 			@echo -e "This will install Rancher on the target hosts defined in the Ansible inventory file\n"
