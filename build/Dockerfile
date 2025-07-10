@@ -13,14 +13,18 @@ RUN apk add --no-cache \
     curl \
     git \
     python3 \
+    py3-jsonpatch \
+    py3-pyyaml-env-tag \
+    py-pip \
+    py3-kubernetes \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
     ansible-core \
     unzip \
     wget \
     make \
-    openssh-client \
-    py-pip \
-    py3-jsonpatch \
-    py3-pyyaml-env-tag && \
+    openssh-client && \
     addgroup -g 1001 -S deploy && \
     adduser -h /home/$USER -s /bin/bash -u 1001 -G $USER -S $USER && \
     echo "deploy ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/deploy && \
