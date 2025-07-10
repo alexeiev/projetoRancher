@@ -108,6 +108,7 @@ export PM_API_TOKEN_ID=         # API Token gerado no proxmox
 export PM_API_TOKEN_SECRET=     # API Secret gerado no proxmox
 MAKETYPE=docker                 # Escolha em que modo vai usar a instalação
 # MAKETYPE=linux
+ENV=latest                      # Escolhe qual imagem docker usar
 ```
 
 ***Mais informações, verificar na documentação oficial.* [Proxmox](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pveum_tokens)
@@ -148,12 +149,11 @@ rancher_url: "rancher.homelab.local"
 # Indicar a senha do admin do Rancher
 admin_password: "Admin123"
 # Indicar se o Longhorn deve ser instalado
-longhorn_install: true
-# Indicar se o Monitoring deve ser instalado
-monitoring_install: true
+longhorn:
+  enabled: true
 monitoring:
-  # Versão do monitoring-stack
-  version: "106.1.2"
+  enabled: true
+  version: "106.1.2+up69.8.2-rancher.7"
   namespace: "cattle-monitoring-system"
   storageClass: "longhorn"
   grafana:
@@ -164,6 +164,11 @@ monitoring:
     size: "20Gi"
   alertmanager:
     size: "2Gi"
+# Instalar o ArgoCD para GitOps
+gitops:
+  enabled: true
+  # URL do ArgoCD, se não for definido, será usado o padrão argocd.rancher_url
+  #url:
 ```
 
 ## Conhecendo o nosso Makefile
@@ -274,12 +279,11 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   # Indicar a senha do admin do Rancher
   admin_password: "Admin123"
   # Indicar se o Longhorn deve ser instalado
-  longhorn_install: true
-  # Indicar se o Monitoring deve ser instalado
-  monitoring_install: true
+  longhorn:
+    enabled: true
   monitoring:
-    # Versão do monitoring-stack
-    version: "106.1.2"
+    enabled: true
+    version: "106.1.2+up69.8.2-rancher.7"
     namespace: "cattle-monitoring-system"
     storageClass: "longhorn"
     grafana:
@@ -290,6 +294,10 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
       size: "20Gi"
     alertmanager:
       size: "2Gi"
+  gitops:
+    enabled: true
+    # URL do ArgoCD, se não for definido, será usado o padrão argocd.rancher_url
+    #url:
   ```
 > [!IMPORTANT]
 > A configuração de URL e senha do usuário admin estará neste arquivo.
@@ -378,12 +386,11 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
   # Indicar a senha do admin do Rancher
   admin_password: "Admin123"
   # Indicar se o Longhorn deve ser instalado
-  longhorn_install: true
-  # Indicar se o Monitoring deve ser instalado
-  monitoring_install: true
+  longhorn:
+    enabled: true
   monitoring:
-    # Versão do monitoring-stack
-    version: "106.1.2"
+    enabled: true
+    version: "106.1.2+up69.8.2-rancher.7"
     namespace: "cattle-monitoring-system"
     storageClass: "longhorn"
     grafana:
@@ -394,6 +401,10 @@ Se você já tem o Docker instalado na sua maquina, fica mais fácil utilizar o 
       size: "20Gi"
     alertmanager:
       size: "2Gi"
+  gitops:
+    enabled: true
+    # URL do ArgoCD, se não for definido, será usado o padrão argocd.rancher_url
+    #url:
   ```
  > [!IMPORTANT]
  > A configuração de URL e senha do usuário admin estará neste arquivo.
