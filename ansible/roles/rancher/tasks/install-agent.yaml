@@ -20,12 +20,6 @@
   changed_when: false
   when: rke2_install is changed
 
-- name: "[Install Agent] - Print Rancher token"
-  ansible.builtin.debug:
-    msg: "Rancher token: {{ rancher_token }}"
-  changed_when: false
-  when: rke2_install is changed
-
 - name: "[Install Agent] - create RKE2 configuration directory"
   ansible.builtin.file:
     path: /etc/rancher/rke2
