@@ -13,7 +13,7 @@ module "rancher-worker" {
   vm_storage        = "nfs"
   vm_storage_type   = "qcow2"
   net               = "vmbr0"
-  #net_vlan          = -1
+  net_vlan          = 0
   vm_ip_address     = [
                       "ip=10.0.0.102/24,gw=10.0.0.1",                       
                       "ip=10.0.0.103/24,gw=10.0.0.1",
