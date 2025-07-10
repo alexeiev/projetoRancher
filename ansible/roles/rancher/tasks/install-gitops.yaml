@@ -30,18 +30,6 @@
   when: inventory_hostname in groups['rancher_master']
   register: argocd_install
 
-- name: "[Install GitOps] - Wait for ArgoCD pods to be ready"
-  kubernetes.core.k8s_info:
-    kind: Pod
-    namespace: argocd
-    label_selectors:
-      - app.kubernetes.io/name=argocd-server
-  register: argocd_pods
-  when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
-  until: argocd_pods.resources | length > 0 and argocd_pods.resources[0].status.phase == 'Running'
-  retries: 10
-  delay: 10
-
 - name: "[Install GitOps] - Check if Ingress role is installed"
   ansible.builtin.shell: >
     kubectl get ingress -n argocd argocd-server-ingress
@@ -69,16 +57,17 @@
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
 
 - name: "[Install GitOps] - Get ArgoCD admin password"
-  kubernetes.core.k8s_info:
-    kind: Secret
-    namespace: argocd
-    name: argocd-initial-admin-secret
+  ansible.builtin.shell: >
+    kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' |base64 -d
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
   register: argocd_secret
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
 
 - name: "[Install GitOps] - Decode ArgoCD admin password"
   ansible.builtin.set_fact:
-    argocd_admin_password: "{{ argocd_secret.resources[0].data['password'] | b64decode }}"
+    argocd_admin_password: "{{ argocd_secret.stdout }}"
 
 - name: "[Install GitOps] - Print ArgoCD access information"
   ansible.builtin.debug:
