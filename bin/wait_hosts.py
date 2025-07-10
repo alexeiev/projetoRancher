@@ -36,11 +36,11 @@ def check_ansible_connectivity():
         sys.exit(1)
 
 def main():
-    print("🎛️  Verificando disponibilidade das VMs...\n")
+    print("\n🎛️  Verificando disponibilidade das VMs...\n", flush=True)
     attempt = 1
     while not check_ansible_connectivity():
         message = random.choice(messages)
-        print(f"[Tentativa {attempt}] {message}")
+        print(f"[Tentativa {attempt}] {message}", flush=True)
         time.sleep(5)
         attempt += 1
 
