@@ -1,6 +1,6 @@
 include ./conf/.env
 
-TAG 						:= dev
+TAG 						:= latest
 SHELL						:= /bin/bash
 DIR_TERRAFORM		:= ./infra
 DIR_ANSIBLE			:=./ansible
