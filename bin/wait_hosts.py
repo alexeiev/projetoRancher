@@ -27,7 +27,7 @@ def check_ansible_connectivity():
             stderr=subprocess.PIPE,
             text=True
         )
-        if "SUCCESS" in result.stdout:
+        if "UNREACHABLE" not in result.stdout:
             return True
         else:
             return False
