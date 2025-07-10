@@ -22,3 +22,7 @@ monitoring:
     size: "20Gi"
   alertmanager:
     size: "2Gi"
+gitops:
+  enabled: true
+  # URL do ArgoCD, se não for definido, será usado o padrão argocd.rancher_url
+  url: "" 

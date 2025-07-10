@@ -23,3 +23,7 @@
 - name: Install Monitoring
   include_tasks: install-monitoring.yaml
   when: inventory_hostname in groups['rancher_master'] and monitoring_install == true
+
+- name: Install GitOps (ArgoCD)
+  include_tasks: install-gitops.yaml
+  when: inventory_hostname in groups['rancher_master'] and gitops.enabled == true
