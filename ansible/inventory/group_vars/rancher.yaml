@@ -7,10 +7,10 @@ rancher_url: "rancher.homelab.local"
 # Indicar a senha do admin do Rancher
 admin_password: "Admin123"
 # Indicar se o Longhorn deve ser instalado
-longhorn_install: true
-# Indicar se o Monitoring deve ser instalado
-monitoring_install: true
+longhorn:
+  enabled: true
 monitoring:
+  enabled: true
   version: "106.1.2+up69.8.2-rancher.7"
   namespace: "cattle-monitoring-system"
   storageClass: "longhorn"

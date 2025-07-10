@@ -18,11 +18,11 @@
 
 - name: Install Longhorn
   include_tasks: install-longhorn.yaml
-  when: inventory_hostname in groups['rancher_master'] and longhorn_install == true
+  when: inventory_hostname in groups['rancher_master'] and longhorn.enabled == true
 
 - name: Install Monitoring
   include_tasks: install-monitoring.yaml
-  when: inventory_hostname in groups['rancher_master'] and monitoring_install == true
+  when: inventory_hostname in groups['rancher_master'] and monitoring.enabled == true
 
 - name: Install GitOps (ArgoCD)
   include_tasks: install-gitops.yaml
