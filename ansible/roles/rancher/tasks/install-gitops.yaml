@@ -56,6 +56,16 @@
     argocd_url: "{{ (gitops.url | default('')) | default('argocd.' + rancher_url, true) }}"
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
 
+- name: "[Install GitOps] - Wait for ArgoCD admin secret to be created"
+  ansible.builtin.shell: kubectl get secret -n argocd argocd-initial-admin-secret
+  register: secret_check
+  changed_when: false
+  failed_when: false
+  retries: 10
+  delay: 6
+  until: secret_check.rc == 0
+  when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
+
 - name: "[Install GitOps] - Get ArgoCD admin password"
   ansible.builtin.shell: >
     kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' |base64 -d
@@ -63,8 +73,7 @@
   failed_when: false
   ignore_errors: true
   register: argocd_secret
-  until: argocd_secret.stdout != ""
-  when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
+  when: inventory_hostname in groups['rancher_master'] and secret_check is changed
 
 - name: "[Install GitOps] - Decode ArgoCD admin password"
   ansible.builtin.set_fact:
