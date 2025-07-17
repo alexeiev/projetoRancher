@@ -80,7 +80,7 @@
 
 - name: "[Install GitOps] - Apply app-senhas configuration"
   ansible.builtin.shell: >
-    kubectl apply -f /tmp/app-senhas.yaml -n giropops-senhas
+    kubectl apply -f /tmp/app-senhas.yaml
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed and app_senhas_config is changed
 
 - name: "[Install GitOps] - Print ArgoCD access information"
