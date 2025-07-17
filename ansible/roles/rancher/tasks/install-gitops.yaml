@@ -87,5 +87,5 @@
   ansible.builtin.debug:
     msg: 
       - "ArgoCD is installed at https://{{ argocd_url }} with admin password: {{ argocd_admin_password }}"
-      - "APP Senhas is deployed in the giropops-senhas namespace."
+      - "APP Senhas is deployed in the giropops-senhas. Access it at https://senhas.homelab.local"
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
