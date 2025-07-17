@@ -73,7 +73,7 @@
   failed_when: false
   ignore_errors: true
   register: argocd_secret
-  when: inventory_hostname in groups['rancher_master'] and secret_check is changed
+  when: inventory_hostname in groups['rancher_master'] and secret_check.rc == 0 and argocd_install is changed
 
 - name: "[Install GitOps] - Decode ArgoCD admin password"
   ansible.builtin.set_fact:
@@ -96,5 +96,5 @@
   ansible.builtin.debug:
     msg: 
       - "ArgoCD is installed at https://{{ argocd_url }} with admin password: {{ argocd_admin_password }}"
-      - "APP Senhas is deployed in the giropops-senhas. Access it at https://senhas.homelab.local"
+      - "APP Senhas is deployed in the giropops-senhas. Access it at http://senhas.homelab.local"
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
