@@ -70,7 +70,7 @@
   ansible.builtin.set_fact:
     argocd_admin_password: "{{ argocd_secret.stdout }}"
 
-- name: "[Install GitOps] - Copy kubeconfig to user's home directory"
+- name: "[Install GitOps] - Create app-senhas configuration"
   ansible.builtin.copy:
     src: app-senhas.yaml.j2
     dest: /tmp/app-senhas.yaml
