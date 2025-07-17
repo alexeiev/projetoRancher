@@ -63,13 +63,29 @@
   failed_when: false
   ignore_errors: true
   register: argocd_secret
+  until: argocd_secret.stdout != ""
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
 
 - name: "[Install GitOps] - Decode ArgoCD admin password"
   ansible.builtin.set_fact:
     argocd_admin_password: "{{ argocd_secret.stdout }}"
 
+- name: "[Install GitOps] - Copy kubeconfig to user's home directory"
+  ansible.builtin.copy:
+    src: app-senhas.yaml.j2
+    dest: /tmp/app-senhas.yaml
+    mode: '0644'
+  register: app_senhas_config
+  when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
+
+- name: "[Install GitOps] - Apply app-senhas configuration"
+  ansible.builtin.shell: >
+    kubectl apply -f /tmp/app-senhas.yaml -n giropops-senhas
+  when: inventory_hostname in groups['rancher_master'] and argocd_install is changed and app_senhas_config is changed
+
 - name: "[Install GitOps] - Print ArgoCD access information"
   ansible.builtin.debug:
-    msg: "ArgoCD is installed at https://{{ argocd_url }} with admin password: {{ argocd_admin_password }}"
+    msg: 
+      - "ArgoCD is installed at https://{{ argocd_url }} with admin password: {{ argocd_admin_password }}"
+      - "APP Senhas is deployed in the giropops-senhas namespace."
   when: inventory_hostname in groups['rancher_master'] and argocd_install is changed
