@@ -71,7 +71,7 @@
     argocd_admin_password: "{{ argocd_secret.stdout }}"
 
 - name: "[Install GitOps] - Create app-senhas configuration"
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: app-senhas.yaml.j2
     dest: /tmp/app-senhas.yaml
     mode: '0644'
