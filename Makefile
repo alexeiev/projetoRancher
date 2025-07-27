@@ -27,7 +27,7 @@ ifeq ($(MAKETYPE),linux)
 		@cd $(DIR_TERRAFORM) && terraform init && terraform validate
 else ifeq ($(MAKETYPE),docker)
 		@echo -e "\nValidate infrastructure with Docker\n"
-		@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/.ssh/id_rsa ceievfa/projetorancher:$(TAG) make -f $(MAKEFILE) infra_validate
+		@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/id_rsa ceievfa/projetorancher:$(TAG) make -f $(MAKEFILE) infra_validate
 endif
 
 .PHONY: k8s_install
@@ -38,7 +38,7 @@ ifeq ($(MAKETYPE),linux)
 			@cd $(DIR_ANSIBLE) && ansible-playbook -i inventory/hosts install-rancher.yaml -e "target_hosts=rancher" ; cd - >/dev/null 2>&1
 else ifeq ($(MAKETYPE),docker)
 			@echo -e "\Installing Kubernetes/Rahcner with Ansible and Docker\n"
-			@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/.ssh/id_rsa ceievfa/projetorancher:$(TAG) make -f $(MAKEFILE) k8s_install
+			@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/id_rsa ceievfa/projetorancher:$(TAG) make -f $(MAKEFILE) k8s_install
 endif
 
 
@@ -51,7 +51,7 @@ ifeq ($(MAKETYPE),linux)
 			rm -f $(DIR_TERRAFORM)/.terraform.lock* >/dev/null 2>&1
 else ifeq ($(MAKETYPE),docker)
 			@echo -e "\cleanup infrastructure with Docker\n"
-			@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/.ssh/id_rsa ceievfa/projetorancher:$(TAG) make -f $(MAKEFILE) clean
+			@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/id_rsa ceievfa/projetorancher:$(TAG) make -f $(MAKEFILE) clean
 endif
 
 .PHONY: infra_create
@@ -80,5 +80,5 @@ ifeq ($(MAKETYPE),linux)
 			@cd $(DIR_TERRAFORM) && terraform destroy -auto-approve && cd - >/dev/null 2>&1
 else ifeq ($(MAKETYPE),docker)
 			@echo -e "\nDestroy infrastructure with Docker\n"
-			@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/.ssh/id_rsa ceievfa/projetorancher:$(TAG) make -f $(MAKEFILE) infra_destroy
+			@docker run --rm -v $(LOCALDIR):/app -v $(HOMEDIR)/.ssh/id_rsa:/home/deploy/id_rsa ceievfa/projetorancher:$(TAG) make -f $(MAKEFILE) infra_destroy
 endif
